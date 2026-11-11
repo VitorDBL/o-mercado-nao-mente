@@ -40,6 +40,7 @@ plt.rcParams.update({
     "xtick.color": "#5B6576",
     "ytick.color": "#5B6576",
     "axes.grid": True,
+    "axes.axisbelow": True,
     "grid.color": "#EEF1F5",
     "grid.linewidth": 1,
     "figure.dpi": 100,
@@ -136,12 +137,26 @@ def ciclos_selic(selic: pd.Series) -> dict:
     piso = s[piso_data]
     sobe = s[piso_data:]
     inicio_alta = sobe[sobe > piso].index[0]
-    teto = s[inicio_alta:].max()
-    teto_data = s[inicio_alta:][s[inicio_alta:] == teto].index[0]
+    # fim da primeira alta: último aumento antes do primeiro corte
+    depois = s[inicio_alta:]
+    primeiro_corte = depois[depois.diff() < 0].index
+    ate_corte = depois[:primeiro_corte[0]] if len(primeiro_corte) else depois
+    teto1 = ate_corte.max()
+    teto1_data = ate_corte[ate_corte == teto1].index[0]
+    teto = depois.max()
+    teto_data = depois[depois == teto].index[0]
+    piso2 = s[teto1_data:teto_data].min() if teto_data > teto1_data else None
+    piso2_data = s[teto1_data:teto_data].idxmin() if piso2 is not None else None
+    if piso2 is not None:
+        subida2 = s[piso2_data:teto_data]
+        inicio_alta2 = subida2[subida2 > piso2].index[0]
+    else:
+        inicio_alta2 = None
     apos = s[teto_data:]
     cortes = apos[apos < teto]
     inicio_corte = cortes.index[0] if len(cortes) else None
-    return {"piso": piso, "inicio_alta": inicio_alta, "teto": teto, "teto_data": teto_data,
+    return {"piso": piso, "inicio_alta": inicio_alta, "teto1": teto1, "teto1_data": teto1_data,
+            "piso2": piso2, "inicio_alta2": inicio_alta2, "teto": teto, "teto_data": teto_data,
             "inicio_corte": inicio_corte}
 
 
@@ -153,7 +168,7 @@ def juros(d: Dados) -> dict:
         serie = p[col][a:b]
         return serie.iloc[-1] / serie.iloc[0] - 1
 
-    alta = (c["inicio_alta"], c["teto_data"])
+    alta = (c["inicio_alta"], c["teto1_data"])
     ativos = ["Ibovespa", "Itaú (ITUB4)", "Magazine Luiza (MGLU3)"]
     ret_alta = {a: ret(a, *alta) for a in ativos}
 
@@ -162,6 +177,8 @@ def juros(d: Dados) -> dict:
     ax.plot(ibov.index, ibov / 1000, color=GRAFITE, lw=1.4, label="Ibovespa (mil pontos)")
     ax.set_ylabel("Ibovespa (mil pontos)")
     ax.axvspan(*alta, color=LARANJA, alpha=0.10, lw=0)
+    if c["inicio_alta2"] is not None:
+        ax.axvspan(c["inicio_alta2"], c["teto_data"], color=LARANJA, alpha=0.10, lw=0)
     ax2 = ax.twinx()
     selic = d.selic.resample("D").ffill()["2019-01-01":]
     ax2.step(selic.index, selic, where="post", color=LARANJA, lw=2, label="Selic meta (% a.a.)")
@@ -170,8 +187,6 @@ def juros(d: Dados) -> dict:
     ax2.grid(False)
     ax2.spines["right"].set_visible(True)
     ax2.spines["right"].set_color(CINZA_CLARO)
-    ax.text(alta[0] + (alta[1] - alta[0]) / 2, ax.get_ylim()[1] * 0.98, "ciclo de alta",
-            ha="center", va="top", color=LARANJA, fontsize=10)
     fmt_eixo_data(ax)
     img1 = salvar(fig, "2_selic_ibovespa.png")
 
@@ -179,13 +194,22 @@ def juros(d: Dados) -> dict:
     base = base / base.iloc[0] * 100
     fig, ax = plt.subplots(figsize=(10, 4.4))
     cores = {"Ibovespa": GRAFITE, "Itaú (ITUB4)": LARANJA, "Magazine Luiza (MGLU3)": AZUL}
+    # posições dos rótulos no fim das linhas, afastadas para não encostarem
+    finais = sorted(ativos, key=lambda a: base[a].iloc[-1])
+    pos, ultimo = {}, None
+    for a in finais:
+        y = base[a].iloc[-1]
+        if ultimo is not None and y - ultimo < 7:
+            y = ultimo + 7
+        pos[a] = ultimo = y
     for a in ativos:
         ax.plot(base.index, base[a], color=cores[a], lw=1.8)
         ax.annotate(f"{a.split(' (')[0]} {pct(ret_alta[a], 0)}", (base.index[-1], base[a].iloc[-1]),
-                    xytext=(6, 0), textcoords="offset points", va="center", color=cores[a],
+                    xytext=(base.index[-1] + pd.Timedelta(days=10), pos[a]), textcoords="data", va="center", color=cores[a],
                     fontsize=10, fontweight="bold")
     ax.axhline(100, color=CINZA, lw=1, ls="--")
     ax.set_ylabel("Base 100 no início da alta")
+    ax.set_xlim(right=base.index[-1] + (base.index[-1] - base.index[0]) * 0.16)
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%b/%y"))
     img2 = salvar(fig, "3_vencedores_perdedores.png")
 
@@ -195,7 +219,9 @@ def juros(d: Dados) -> dict:
 # ---------------------------------------------------------------- capítulo 3
 def eleicao(d: Dados) -> dict:
     p = d.precos
-    datas = {"1º turno (02/10/2022)": "2022-10-03", "2º turno (30/10/2022)": "2022-10-31"}
+    datas = {"1º turno de 2022": "2022-10-03", "2º turno de 2022": "2022-10-31",
+             "1º turno de 2026": "2026-10-05", "2º turno de 2026": "2026-10-26"}
+    datas = {r: d_ for r, d_ in datas.items() if pd.Timestamp(d_) <= p.index.max()}
     ativos = ["Ibovespa", "Petrobras (PETR4)", "Itaú (ITUB4)", "Vale (VALE3)"]
     diarios = p[ativos].pct_change()
     tabela = {}
@@ -203,25 +229,41 @@ def eleicao(d: Dados) -> dict:
         dia = diarios.index[diarios.index.get_indexer([pd.Timestamp(dia)], method="bfill")[0]]
         tabela[rotulo] = {a: diarios.loc[dia, a] for a in ativos}
 
-    vol_normal = diarios["2022-01-01":"2022-09-30"].std()
+    anos = sorted({r[-4:] for r in tabela})
+    vol_normal = {ano: diarios[f"{ano}-01-01":f"{ano}-09-30"].std() for ano in anos}
 
-    fig, ax = plt.subplots(figsize=(10, 4.2))
+    # maior queda do Ibovespa num dia antes de cada pregão de eleição, para dar escala
+    ibov = diarios["Ibovespa"]
+
+    fig, eixos = plt.subplots(1, len(anos), figsize=(10, 4.4), sharey=True, squeeze=False)
     largura = 0.38
     xs = range(len(ativos))
-    for k, (rotulo, cor) in enumerate(zip(tabela, [LARANJA, GRAFITE])):
-        vals = [tabela[rotulo][a] * 100 for a in ativos]
-        barras = ax.bar([x + (k - 0.5) * largura for x in xs], vals, largura, color=cor, label=rotulo)
-        for b, v in zip(barras, vals):
-            ax.annotate(f"{v:+.1f}%".replace(".", ","), (b.get_x() + b.get_width() / 2, v),
-                        xytext=(0, 4 if v >= 0 else -14), textcoords="offset points",
-                        ha="center", fontsize=9, color=GRAFITE)
-    ax.axhline(0, color=GRAFITE, lw=0.8)
-    ax.set_xticks(list(xs), [a.split(" (")[0] for a in ativos])
-    ax.set_ylabel("Variação no pregão seguinte (%)")
-    ax.legend(frameon=False, loc="lower left")
+    for ax, ano in zip(eixos[0], anos):
+        turnos = [r for r in tabela if r.endswith(ano)]
+        for k, (rotulo, cor) in enumerate(zip(turnos, [LARANJA, GRAFITE])):
+            vals = [tabela[rotulo][a] * 100 for a in ativos]
+            barras = ax.bar([x + (k - 0.5) * largura for x in xs], vals, largura, color=cor,
+                            label=rotulo.split(" de ")[0])
+            for b, v in zip(barras, vals):
+                ax.annotate(f"{v:+.1f}%".replace(".", ","), (b.get_x() + b.get_width() / 2, v),
+                            xytext=(0, 4 if v >= 0 else -13), textcoords="offset points",
+                            ha="center", fontsize=8.5, color=GRAFITE)
+        ax.axhline(0, color=GRAFITE, lw=0.8)
+        ax.set_xticks(list(xs), [a.split(" (")[0] for a in ativos], fontsize=9)
+        ax.set_title(f"Eleição de {ano}", fontsize=11, loc="left", color=GRAFITE)
+    eixos[0][0].set_ylabel("Variação no pregão seguinte (%)")
+    eixos[0][0].legend(frameon=False, loc="lower left")
     img = salvar(fig, "4_eleicao.png")
 
-    return {"tabela": tabela, "vol_normal": vol_normal, "img": img}
+    pior = {}
+    for rotulo, dia in datas.items():
+        dia = diarios.index[diarios.index.get_indexer([pd.Timestamp(dia)], method="bfill")[0]]
+        v = ibov.loc[dia]
+        antes = ibov[:dia].iloc[:-1]
+        pior_antes = antes[antes <= v]
+        pior[rotulo] = pior_antes.index[-1] if (v < 0 and len(pior_antes)) else None
+
+    return {"tabela": tabela, "vol_normal": vol_normal, "pior_desde": pior, "img": img}
 
 
 # ---------------------------------------------------------------- capítulo 4
@@ -242,9 +284,8 @@ def acumulado(d: Dados) -> dict:
         ax.annotate(f"R$ {v:,.0f}".replace(",", "."), (v, b.get_y() + b.get_height() / 2),
                     xytext=(6, 0), textcoords="offset points", va="center", fontsize=10, color=GRAFITE)
     ax.axvline(1000 * (1 + inflacao), color=CINZA, ls="--", lw=1.2)
-    ax.annotate(f"R$ 1.000 corrigidos pela\ninflação: R$ {1000 * (1 + inflacao):,.0f}".replace(",", "."),
-                (1000 * (1 + inflacao), len(ordem) - 0.5), xytext=(6, 0), textcoords="offset points",
-                fontsize=9, color="#5B6576", va="top")
+    ax.text(1000 * (1 + inflacao), 1.01, f"inflação: R$ {1000 * (1 + inflacao):,.0f}".replace(",", "."),
+            transform=ax.get_xaxis_transform(), ha="center", va="bottom", fontsize=9, color="#5B6576")
     ax.set_xlabel(f"Quanto viraram R$ 1.000 aplicados em {br(inicio)}")
     ax.grid(axis="y", visible=False)
     img = salvar(fig, "5_acumulado.png")
@@ -254,6 +295,64 @@ def acumulado(d: Dados) -> dict:
 
 
 # ---------------------------------------------------------------- relatório
+ARTIGOS = {"Ibovespa": "o Ibovespa", "Petrobras": "a Petrobras", "Itaú": "o Itaú", "Vale": "a Vale",
+           "Magazine Luiza": "a Magazine Luiza", "Dólar": "o dólar"}
+
+
+def com_artigo(ativo: str) -> str:
+    nome = ativo.split(" (")[0]
+    return ARTIGOS.get(nome, nome)
+
+
+def _mov(v: float) -> str:
+    return f"{'subiu' if v > 0 else 'caiu'} {pct(abs(v)).lstrip('+')}"
+
+
+def texto_eleicao(c3) -> str:
+    tab, vol = c3["tabela"], c3["vol_normal"]
+    paragrafos = []
+    anos = list(vol)
+    for i, ano in enumerate(anos):
+        t1, t2 = (tab.get(f"1º turno de {ano}"), tab.get(f"2º turno de {ano}"))
+        normal = vol[ano]
+        frases = []
+        if t1:
+            ib = t1["Ibovespa"]
+            m = max(t1, key=lambda a: abs(t1[a]))
+            f = f"Em {ano}, no pregão depois do primeiro turno, o Ibovespa {_mov(ib)}"
+            vezes = abs(ib) / normal["Ibovespa"]
+            if vezes >= 2:
+                f += f", umas {num(vezes, 0)} vezes a oscilação de um dia comum daquele ano"
+            if m != "Ibovespa" and abs(t1[m]) > abs(ib):
+                f += f", e {com_artigo(m)} {_mov(t1[m])}"
+            f += "."
+            if i > 0 and max(abs(v) for v in t1.values()) > max(abs(v) for v in tab[f"1º turno de {anos[0]}"].values()):
+                f = f.replace(f"Em {ano}, no", f"Em {ano} os movimentos foram maiores. No", 1)
+            frases.append(f)
+        if t2:
+            ib = t2["Ibovespa"]
+            if abs(ib) >= 2 * normal["Ibovespa"]:
+                f = f"Depois do segundo turno, o índice {_mov(ib)}"
+                desde = c3["pior_desde"].get(f"2º turno de {ano}")
+                if ib < 0 and desde is not None:
+                    f += f", a maior queda num dia desde {br(desde)}"
+                    if desde.year == 2020:
+                        f += ", no começo da pandemia"
+                f += "."
+                if ib <= -0.10:
+                    f += " Como passou de 10%, a queda acionou o circuit breaker da B3, que paralisa os negócios por meia hora."
+            else:
+                m = max(t2, key=lambda a: abs(t2[a]))
+                if t1 and t1[m] * t2[m] < 0:
+                    f = f"No segundo turno, {com_artigo(m)} fez o caminho contrário e {_mov(t2[m])}."
+                else:
+                    f = f"No segundo turno, o maior movimento foi d{com_artigo(m)}, que {_mov(t2[m])}."
+            frases.append(f)
+        if frases:
+            paragrafos.append("<p>" + " ".join(frases) + "</p>")
+    return "\n".join(paragrafos)
+
+
 def relatorio(d: Dados, c1, c2, c3, c4) -> str:
     rec_txt = (f"A volta demorou bem mais. O índice só fechou acima do topo anterior em {br(c1['recuperacao_data'])}, "
                f"uns {num(c1['meses_recuperacao'], 0)} meses depois do fundo."
@@ -265,30 +364,47 @@ def relatorio(d: Dados, c1, c2, c3, c4) -> str:
         hipotese_txt = (f"Dessa vez a hipótese bateu. A distância entre os dois foi de {num(abs(itau - magalu) * 100, 0)} "
                         "pontos percentuais no mesmo intervalo, com a mesma taxa de juros valendo para os dois.")
     elif itau > magalu:
-        hipotese_txt = ("A ordem foi a que eu esperava, com o Itaú na frente da Magazine Luiza, mas o Ibovespa não ficou no meio "
-                        "do caminho, então não dá para dizer que o juro explica tudo.")
+        hipotese_txt = (f"Só metade da hipótese bateu. A Magazine Luiza derreteu, mas o Itaú não se salvou e terminou "
+                        f"um pouco abaixo do próprio Ibovespa. Uma explicação possível é que o juro alto deixa o crédito "
+                        f"mais caro, mas também faz mais gente atrasar pagamento, e uma coisa compensou a outra.")
     else:
         hipotese_txt = ("Aqui a hipótese não se confirmou: a Magazine Luiza foi melhor que o Itaú no período. "
                         "Outros fatores pesaram mais que o juro.")
 
+    eleicao_txt = texto_eleicao(c3)
+    turnos = list(c3["tabela"])
+    ativos_el = list(next(iter(c3["tabela"].values())))
     linhas_eleicao = "".join(
-        f"<tr><td>{a.split(' (')[0]}</td>" + "".join(f"<td>{pct(c3['tabela'][r][a])}</td>" for r in c3["tabela"]) +
-        f"<td>{pct(c3['vol_normal'][a]).lstrip('+')}</td></tr>"
-        for a in next(iter(c3["tabela"].values()))
+        f"<tr><td>{r.replace(' de ', ', ')}</td>" + "".join(f"<td>{pct(c3['tabela'][r][a])}</td>" for a in ativos_el) + "</tr>"
+        for r in turnos
     )
-    primeiro = next(iter(c3["tabela"].values()))
-    maior_mov = max(primeiro, key=lambda a: abs(primeiro[a]))
-    vezes = abs(primeiro[maior_mov]) / c3["vol_normal"][maior_mov]
-    comparacao_txt = (f", então o movimento foi umas {num(vezes, 0)} vezes maior que o normal." if vezes >= 2
-                      else ". Ou seja, o dia foi agitado, mas dentro do que se via naquele ano.")
+    cab_eleicao = "".join(f"<th>{a.split(' (')[0]}</th>" for a in ativos_el)
+    tipicos = {ano: pct(v["Ibovespa"]).lstrip("+") for ano, v in c3["vol_normal"].items()}
+    if len(set(tipicos.values())) == 1:
+        tipico = f"cerca de {next(iter(tipicos.values()))}" + (" nos dois anos" if len(tipicos) == 2 else "")
+    else:
+        tipico = " e ".join(f"{v} em {ano}" for ano, v in tipicos.items())
 
-    perderam = [a.split(" (")[0] for a in c4["perderam"]]
+    perderam = [com_artigo(a) for a in c4["perderam"]]
     if not perderam:
         perderam_frase = "Todos os ativos que escolhi conseguiram."
     elif len(perderam) == 1:
         perderam_frase = f"Só {perderam[0]} não conseguiu."
     else:
-        perderam_frase = ", ".join(perderam[:-1]) + " e " + perderam[-1] + " não conseguiram."
+        lista = ", ".join(perderam[:-1]) + " e " + perderam[-1]
+        perderam_frase = lista[0].upper() + lista[1:] + " não conseguiram."
+
+    selic_txt = f"Em {br(c2['inicio_alta'])} ele começou a subir de novo e chegou a {num(c2['teto1'], 2)}% em {br(c2['teto1_data'])}."
+    if c2.get("piso2") is not None:
+        selic_txt += (f" Depois de um tempo parada, a taxa caiu até {num(c2['piso2'], 2)}%, voltou a subir em "
+                      f"{br(c2['inicio_alta2'])} e foi até {num(c2['teto'], 2)}%, em {br(c2['teto_data'])}.")
+    if c2.get("inicio_corte") is not None:
+        selic_txt += f" O corte seguinte só começou em {br(c2['inicio_corte'])}."
+    atualizado = d.atualizado[:10]
+    try:
+        atualizado = br(pd.Timestamp(atualizado))
+    except Exception:
+        atualizado = br(c4["fim"])
 
     return f"""<!DOCTYPE html>
 <html lang="pt-BR">
@@ -296,7 +412,7 @@ def relatorio(d: Dados, c1, c2, c3, c4) -> str:
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>O Mercado Não Mente | Vitor Del Bosque Lima</title>
-<meta name="description" content="Análise de dados da bolsa brasileira: pandemia, juros e eleição contados pelos preços.">
+<meta name="description" content="Análise de dados da bolsa brasileira: pandemia, juros e eleições contados pelos preços.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -332,16 +448,16 @@ a{{color:var(--accent)}}
 <figure><img src="{c1['img']}" alt="Gráfico do Ibovespa entre 2019 e 2021 com a queda da pandemia destacada"><figcaption>Ibovespa no fechamento diário. Fonte: Yahoo Finance.</figcaption></figure>
 
 <h2>2. O que aconteceu com a bolsa quando os juros subiram</h2>
-<p>Na pandemia o Banco Central baixou a Selic até {num(c2['piso'], 2)}% ao ano, o menor nível desde que a taxa existe. Em {br(c2['inicio_alta'])} ele começou a subir de novo e só parou em {num(c2['teto'], 2)}%, em {br(c2['teto_data'])}.</p>
-<figure><img src="{c2['img1']}" alt="Ibovespa e Selic meta desde 2019"><figcaption>Ibovespa (linha escura) e Selic meta (laranja). A faixa marca o período de alta. Fontes: Yahoo Finance e Banco Central (série 432 do SGS).</figcaption></figure>
-<p>Minha hipótese era simples. Com juro alto, comprar a prazo fica caro, então o varejo deveria sofrer, e banco tende a lucrar mais com crédito. Comparei o Ibovespa com o Itaú e a Magazine Luiza durante a alta: o índice terminou em {pct(ra['Ibovespa'])}, o Itaú em <span class="num">{pct(ra['Itaú (ITUB4)'])}</span> e a Magazine Luiza em <span class="num">{pct(ra['Magazine Luiza (MGLU3)'])}</span>.</p>
+<p>Na pandemia o Banco Central baixou a Selic até {num(c2['piso'], 2)}% ao ano, o menor nível desde que a taxa existe. {selic_txt}</p>
+<figure><img src="{c2['img1']}" alt="Ibovespa e Selic meta desde 2019"><figcaption>Ibovespa (linha escura) e Selic meta (laranja). As faixas marcam os dois períodos de alta. Fontes: Yahoo Finance e Banco Central (série 432 do SGS).</figcaption></figure>
+<p>Minha hipótese era simples. Com juro alto, comprar a prazo fica caro, então o varejo deveria sofrer, e banco tende a lucrar mais com crédito. Comparei o Ibovespa com o Itaú e a Magazine Luiza durante a primeira alta, de {num(c2['piso'], 2)}% para {num(c2['teto1'], 2)}%: o índice terminou em {pct(ra['Ibovespa'])}, o Itaú em <span class="num">{pct(ra['Itaú (ITUB4)'])}</span> e a Magazine Luiza em <span class="num">{pct(ra['Magazine Luiza (MGLU3)'])}</span>.</p>
 <figure><img src="{c2['img2']}" alt="Itaú, Ibovespa e Magazine Luiza em base 100 no ciclo de alta da Selic"><figcaption>Base 100 no primeiro dia de alta da Selic.</figcaption></figure>
 <p>{hipotese_txt}</p>
 
-<h2>3. O dia seguinte ao primeiro turno de 2022</h2>
-<p>No pregão depois do primeiro turno, {maior_mov.split(' (')[0]} andou <span class="num">{pct(primeiro[maior_mov])}</span>. Num dia comum daquele ano, a oscilação típica era de {pct(c3['vol_normal'][maior_mov]).lstrip('+')}{comparacao_txt}</p>
-<table><thead><tr><th>Ativo</th>{''.join(f'<th>{r}</th>' for r in c3['tabela'])}<th>Dia típico em 2022</th></tr></thead><tbody>{linhas_eleicao}</tbody></table>
-<figure><img src="{c3['img']}" alt="Variação dos ativos nos pregões seguintes aos turnos da eleição de 2022"><figcaption>Variação no pregão seguinte a cada turno. O dia típico é o desvio padrão dos retornos diários de janeiro a setembro de 2022.</figcaption></figure>
+<h2>3. O dia seguinte às eleições de 2022 e 2026</h2>
+{eleicao_txt}
+<table><thead><tr><th>Pregão seguinte ao</th>{cab_eleicao}</tr></thead><tbody>{linhas_eleicao}</tbody></table>
+<figure><img src="{c3['img']}" alt="Variação dos ativos nos pregões seguintes aos turnos das eleições de 2022 e 2026"><figcaption>Variação no pregão seguinte a cada turno. Num dia comum de janeiro a setembro, o Ibovespa oscilava {tipico} (desvio padrão dos retornos diários).</figcaption></figure>
 
 <h2>4. Quem ganhou da inflação desde 2019</h2>
 <p>No período, o IPCA acumulou {pct(c4['inflacao'])}. Então não basta o ativo subir, ele precisa subir mais que isso para o dinheiro valer mais do que no começo. {perderam_frase}</p>
@@ -349,9 +465,9 @@ a{{color:var(--accent)}}
 
 <h2>De onde vêm os números</h2>
 <p>Os preços vêm do Yahoo Finance pela biblioteca yfinance, e a Selic e o IPCA vêm da API do Banco Central. Tratei tudo em Python com pandas e fiz os gráficos com matplotlib. Os números do texto são calculados pelo próprio código, que roda de novo toda sexta pelo GitHub Actions, então esta página se atualiza sozinha.</p>
-<p>Uma ressalva importante: olhar o preço em volta de um fato não prova que o fato causou o movimento, porque muita coisa acontece ao mesmo tempo. E nada aqui é recomendação de investimento.</p>
+<p>Olhar o preço em volta de um fato não prova que foi ele que causou o movimento, porque muita coisa acontece ao mesmo tempo. E nada aqui é recomendação de investimento.</p>
 
-<div class="meta">Dados atualizados em {d.atualizado or br(c4['fim'])}. Código em <a href="https://github.com/VitorDBL/o-mercado-nao-mente">github.com/VitorDBL/o-mercado-nao-mente</a> · <a href="https://vitordbl.github.io">vitordbl.github.io</a></div>
+<div class="meta">Dados atualizados em {atualizado}. Código em <a href="https://github.com/VitorDBL/o-mercado-nao-mente">github.com/VitorDBL/o-mercado-nao-mente</a> · <a href="https://vitordbl.github.io">vitordbl.github.io</a></div>
 </main></body></html>
 """
 

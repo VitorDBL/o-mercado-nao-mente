@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>O Mercado Não Mente | Vitor Del Bosque Lima</title>
-<meta name="description" content="Análise de dados da bolsa brasileira: pandemia, juros e eleição contados pelos preços.">
+<meta name="description" content="Análise de dados da bolsa brasileira: pandemia, juros e eleições contados pelos preços.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -40,24 +40,25 @@ a{color:var(--accent)}
 <figure><img src="img/1_pandemia.png" alt="Gráfico do Ibovespa entre 2019 e 2021 com a queda da pandemia destacada"><figcaption>Ibovespa no fechamento diário. Fonte: Yahoo Finance.</figcaption></figure>
 
 <h2>2. O que aconteceu com a bolsa quando os juros subiram</h2>
-<p>Na pandemia o Banco Central baixou a Selic até 2,00% ao ano, o menor nível desde que a taxa existe. Em 18/03/2021 ele começou a subir de novo e só parou em 15,00%, em 19/06/2025.</p>
-<figure><img src="img/2_selic_ibovespa.png" alt="Ibovespa e Selic meta desde 2019"><figcaption>Ibovespa (linha escura) e Selic meta (laranja). A faixa marca o período de alta. Fontes: Yahoo Finance e Banco Central (série 432 do SGS).</figcaption></figure>
-<p>Minha hipótese era simples. Com juro alto, comprar a prazo fica caro, então o varejo deveria sofrer, e banco tende a lucrar mais com crédito. Comparei o Ibovespa com o Itaú e a Magazine Luiza durante a alta: o índice terminou em +20,8%, o Itaú em <span class="num">+83,2%</span> e a Magazine Luiza em <span class="num">-95,4%</span>.</p>
+<p>Na pandemia o Banco Central baixou a Selic até 2,00% ao ano, o menor nível desde que a taxa existe. Em 18/03/2021 ele começou a subir de novo e chegou a 13,75% em 04/08/2022. Depois de um tempo parada, a taxa caiu até 10,50%, voltou a subir em 19/09/2024 e foi até 15,00%, em 19/06/2025. O corte seguinte só começou em 19/03/2026.</p>
+<figure><img src="img/2_selic_ibovespa.png" alt="Ibovespa e Selic meta desde 2019"><figcaption>Ibovespa (linha escura) e Selic meta (laranja). As faixas marcam os dois períodos de alta. Fontes: Yahoo Finance e Banco Central (série 432 do SGS).</figcaption></figure>
+<p>Minha hipótese era simples. Com juro alto, comprar a prazo fica caro, então o varejo deveria sofrer, e banco tende a lucrar mais com crédito. Comparei o Ibovespa com o Itaú e a Magazine Luiza durante a primeira alta, de 2,00% para 13,75%: o índice terminou em -7,8%, o Itaú em <span class="num">-10,2%</span> e a Magazine Luiza em <span class="num">-85,0%</span>.</p>
 <figure><img src="img/3_vencedores_perdedores.png" alt="Itaú, Ibovespa e Magazine Luiza em base 100 no ciclo de alta da Selic"><figcaption>Base 100 no primeiro dia de alta da Selic.</figcaption></figure>
-<p>Dessa vez a hipótese bateu. A distância entre os dois foi de 179 pontos percentuais no mesmo intervalo, com a mesma taxa de juros valendo para os dois.</p>
+<p>Só metade da hipótese bateu. A Magazine Luiza derreteu, mas o Itaú não se salvou e terminou um pouco abaixo do próprio Ibovespa. Uma explicação possível é que o juro alto deixa o crédito mais caro, mas também faz mais gente atrasar pagamento, e uma coisa compensou a outra.</p>
 
-<h2>3. O dia seguinte ao primeiro turno de 2022</h2>
-<p>No pregão depois do primeiro turno, Petrobras andou <span class="num">+8,0%</span>. Num dia comum daquele ano, a oscilação típica era de 2,3%, então o movimento foi umas 3 vezes maior que o normal.</p>
-<table><thead><tr><th>Ativo</th><th>1º turno (02/10/2022)</th><th>2º turno (30/10/2022)</th><th>Dia típico em 2022</th></tr></thead><tbody><tr><td>Ibovespa</td><td>+5,5%</td><td>+1,3%</td><td>1,2%</td></tr><tr><td>Petrobras</td><td>+8,0%</td><td>-8,5%</td><td>2,3%</td></tr><tr><td>Itaú</td><td>+6,1%</td><td>+2,9%</td><td>1,5%</td></tr><tr><td>Vale</td><td>+2,7%</td><td>-0,5%</td><td>2,4%</td></tr></tbody></table>
-<figure><img src="img/4_eleicao.png" alt="Variação dos ativos nos pregões seguintes aos turnos da eleição de 2022"><figcaption>Variação no pregão seguinte a cada turno. O dia típico é o desvio padrão dos retornos diários de janeiro a setembro de 2022.</figcaption></figure>
+<h2>3. O dia seguinte às eleições de 2022 e 2026</h2>
+<p>Em 2022, no pregão depois do primeiro turno, o Ibovespa subiu 5,5%, umas 5 vezes a oscilação de um dia comum daquele ano, e a Petrobras subiu 8,0%. No segundo turno, a Petrobras fez o caminho contrário e caiu 8,5%.</p>
+<p>Em 2026 os movimentos foram maiores. No pregão depois do primeiro turno, o Ibovespa subiu 7,7%, umas 7 vezes a oscilação de um dia comum daquele ano, e o Itaú subiu 10,4%. Depois do segundo turno, o índice caiu 13,9%, a maior queda num dia desde 16/03/2020, no começo da pandemia. Como passou de 10%, a queda acionou o circuit breaker da B3, que paralisa os negócios por meia hora.</p>
+<table><thead><tr><th>Pregão seguinte ao</th><th>Ibovespa</th><th>Petrobras</th><th>Itaú</th><th>Vale</th></tr></thead><tbody><tr><td>1º turno, 2022</td><td>+5,5%</td><td>+8,0%</td><td>+6,1%</td><td>+2,7%</td></tr><tr><td>2º turno, 2022</td><td>+1,3%</td><td>-8,5%</td><td>+2,9%</td><td>-0,5%</td></tr><tr><td>1º turno, 2026</td><td>+7,7%</td><td>+8,2%</td><td>+10,4%</td><td>-1,0%</td></tr><tr><td>2º turno, 2026</td><td>-13,9%</td><td>-8,2%</td><td>-13,7%</td><td>+4,0%</td></tr></tbody></table>
+<figure><img src="img/4_eleicao.png" alt="Variação dos ativos nos pregões seguintes aos turnos das eleições de 2022 e 2026"><figcaption>Variação no pregão seguinte a cada turno. Num dia comum de janeiro a setembro, o Ibovespa oscilava cerca de 1,2% nos dois anos (desvio padrão dos retornos diários).</figcaption></figure>
 
 <h2>4. Quem ganhou da inflação desde 2019</h2>
-<p>No período, o IPCA acumulou +50,4%. Então não basta o ativo subir, ele precisa subir mais que isso para o dinheiro valer mais do que no começo. Magazine Luiza e Dólar não conseguiram.</p>
+<p>No período, o IPCA acumulou +50,4%. Então não basta o ativo subir, ele precisa subir mais que isso para o dinheiro valer mais do que no começo. A Magazine Luiza e o dólar não conseguiram.</p>
 <figure><img src="img/5_acumulado.png" alt="Quanto viraram mil reais aplicados em cada ativo desde 2019"><figcaption>Preços ajustados por dividendos e desdobramentos. As barras em laranja ficaram abaixo da inflação. Fontes: Yahoo Finance e Banco Central (série 433 do SGS).</figcaption></figure>
 
 <h2>De onde vêm os números</h2>
 <p>Os preços vêm do Yahoo Finance pela biblioteca yfinance, e a Selic e o IPCA vêm da API do Banco Central. Tratei tudo em Python com pandas e fiz os gráficos com matplotlib. Os números do texto são calculados pelo próprio código, que roda de novo toda sexta pelo GitHub Actions, então esta página se atualiza sozinha.</p>
-<p>Uma ressalva importante: olhar o preço em volta de um fato não prova que o fato causou o movimento, porque muita coisa acontece ao mesmo tempo. E nada aqui é recomendação de investimento.</p>
+<p>Olhar o preço em volta de um fato não prova que foi ele que causou o movimento, porque muita coisa acontece ao mesmo tempo. E nada aqui é recomendação de investimento.</p>
 
-<div class="meta">Dados atualizados em 2026-11-11. Código em <a href="https://github.com/VitorDBL/o-mercado-nao-mente">github.com/VitorDBL/o-mercado-nao-mente</a> · <a href="https://vitordbl.github.io">vitordbl.github.io</a></div>
+<div class="meta">Dados atualizados em 11/11/2026. Código em <a href="https://github.com/VitorDBL/o-mercado-nao-mente">github.com/VitorDBL/o-mercado-nao-mente</a> · <a href="https://vitordbl.github.io">vitordbl.github.io</a></div>
 </main></body></html>

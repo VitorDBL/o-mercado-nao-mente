@@ -12,35 +12,65 @@
   "juros": {
     "piso": 2.0,
     "inicio_alta": "2021-03-18",
+    "teto1": 13.75,
+    "teto1_data": "2022-08-04",
+    "piso2": 10.5,
+    "inicio_alta2": "2024-09-19",
     "teto": 15.0,
     "teto_data": "2025-06-19",
     "inicio_corte": "2026-03-19",
     "ret_alta": {
-      "Ibovespa": 0.207968,
-      "Itaú (ITUB4)": 0.832275,
-      "Magazine Luiza (MGLU3)": -0.953749
+      "Ibovespa": -0.077877,
+      "Itaú (ITUB4)": -0.10211,
+      "Magazine Luiza (MGLU3)": -0.849981
     }
   },
   "eleicao": {
     "tabela": {
-      "1º turno (02/10/2022)": {
+      "1º turno de 2022": {
         "Ibovespa": 0.055409,
         "Petrobras (PETR4)": 0.079862,
         "Itaú (ITUB4)": 0.060892,
         "Vale (VALE3)": 0.027207
       },
-      "2º turno (30/10/2022)": {
+      "2º turno de 2022": {
         "Ibovespa": 0.013079,
         "Petrobras (PETR4)": -0.084737,
         "Itaú (ITUB4)": 0.029114,
         "Vale (VALE3)": -0.004745
+      },
+      "1º turno de 2026": {
+        "Ibovespa": 0.077022,
+        "Petrobras (PETR4)": 0.081884,
+        "Itaú (ITUB4)": 0.103725,
+        "Vale (VALE3)": -0.009709
+      },
+      "2º turno de 2026": {
+        "Ibovespa": -0.138846,
+        "Petrobras (PETR4)": -0.0818,
+        "Itaú (ITUB4)": -0.136646,
+        "Vale (VALE3)": 0.040065
       }
     },
     "vol_normal": {
-      "Ibovespa": 0.012103,
-      "Petrobras (PETR4)": 0.023066,
-      "Itaú (ITUB4)": 0.015467,
-      "Vale (VALE3)": 0.024333
+      "2022": {
+        "Ibovespa": 0.012103,
+        "Petrobras (PETR4)": 0.023066,
+        "Itaú (ITUB4)": 0.015467,
+        "Vale (VALE3)": 0.024333
+      },
+      "2026": {
+        "Ibovespa": 0.011549,
+        "Petrobras (PETR4)": 0.018177,
+        "Itaú (ITUB4)": 0.016432,
+        "Vale (VALE3)": 0.018316
+      }
+    },
+    "pior_desde": {
+      "1º turno de 2022": null,
+      "2º turno de 2022": null,
+      "1º turno de 2026": null,
+      "2º turno de 2026": "2020-03-16"
     }
   },
   "acumulado": {

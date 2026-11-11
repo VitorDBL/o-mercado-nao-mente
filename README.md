@@ -1,6 +1,6 @@
 # O Mercado Não Mente
 
-Projeto pessoal de análise de dados em que olho como a bolsa brasileira reagiu à pandemia, ao ciclo de alta da Selic e à eleição de 2022, e quais ativos ganharam da inflação desde 2019.
+Projeto pessoal de análise de dados em que olho como a bolsa brasileira reagiu à pandemia, aos ciclos de alta da Selic e às eleições de 2022 e 2026, e quais ativos ganharam da inflação desde 2019.
 
 O relatório com os gráficos e as conclusões está em https://vitordbl.github.io/o-mercado-nao-mente/
 
