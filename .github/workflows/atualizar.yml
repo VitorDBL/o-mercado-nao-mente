@@ -1,0 +1,31 @@
+name: Atualizar dados e relatório
+
+on:
+  schedule:
+    - cron: "23 22 * * 5"   # toda sexta, 19h23 em São Paulo, depois do fechamento da B3
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["src/**", "requirements.txt"]
+
+permissions:
+  contents: write
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python src/coleta.py
+      - run: python src/analise.py
+      - name: Publicar resultados
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data docs
+          git diff --cached --quiet || (git commit -m "Atualiza dados e relatório" && git push)
