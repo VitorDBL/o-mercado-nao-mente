@@ -1,0 +1,63 @@
+{
+  "pandemia": {
+    "topo": 119528.0,
+    "topo_data": "2020-01-23",
+    "fundo": 63570.0,
+    "fundo_data": "2020-03-23",
+    "queda": -0.468158,
+    "pregoes": 40.0,
+    "recuperacao_data": "2021-01-06",
+    "meses_recuperacao": 9.494087
+  },
+  "juros": {
+    "piso": 2.0,
+    "inicio_alta": "2021-03-18",
+    "teto": 15.0,
+    "teto_data": "2025-06-19",
+    "inicio_corte": "2026-03-19",
+    "ret_alta": {
+      "Ibovespa": 0.207968,
+      "Itaú (ITUB4)": 0.832275,
+      "Magazine Luiza (MGLU3)": -0.953749
+    }
+  },
+  "eleicao": {
+    "tabela": {
+      "1º turno (02/10/2022)": {
+        "Ibovespa": 0.055409,
+        "Petrobras (PETR4)": 0.079862,
+        "Itaú (ITUB4)": 0.060892,
+        "Vale (VALE3)": 0.027207
+      },
+      "2º turno (30/10/2022)": {
+        "Ibovespa": 0.013079,
+        "Petrobras (PETR4)": -0.084737,
+        "Itaú (ITUB4)": 0.029114,
+        "Vale (VALE3)": -0.004745
+      }
+    },
+    "vol_normal": {
+      "Ibovespa": 0.012103,
+      "Petrobras (PETR4)": 0.023066,
+      "Itaú (ITUB4)": 0.015467,
+      "Vale (VALE3)": 0.024333
+    }
+  },
+  "acumulado": {
+    "inicio": "2019-01-02",
+    "fim": "2026-11-11",
+    "retorno": {
+      "Itaú (ITUB4)": 1.03176,
+      "Magazine Luiza (MGLU3)": -0.852243,
+      "Petrobras (PETR4)": 6.023236,
+      "Dólar (USD/BRL)": 0.43398,
+      "Vale (VALE3)": 1.40417,
+      "Ibovespa": 0.898008
+    },
+    "inflacao": 0.503986,
+    "perderam": [
+      "Magazine Luiza (MGLU3)",
+      "Dólar (USD/BRL)"
+    ]
+  }
+}
