@@ -467,7 +467,7 @@ a{{color:var(--accent)}}
 <p>Os preços vêm do Yahoo Finance pela biblioteca yfinance, e a Selic e o IPCA vêm da API do Banco Central. Tratei tudo em Python com pandas e fiz os gráficos com matplotlib. Os números do texto são calculados pelo próprio código, que roda de novo toda sexta pelo GitHub Actions, então esta página se atualiza sozinha.</p>
 <p>Olhar o preço em volta de um fato não prova que foi ele que causou o movimento, porque muita coisa acontece ao mesmo tempo. E nada aqui é recomendação de investimento.</p>
 
-<div class="meta">Dados atualizados em {atualizado}. Código em <a href="https://github.com/VitorDBL/o-mercado-nao-mente">github.com/VitorDBL/o-mercado-nao-mente</a> · <a href="https://vitordbl.github.io">vitordbl.github.io</a></div>
+<div class="meta">Dados atualizados em {atualizado}. Código em <a href="https://github.com/VitorDBL/o-mercado-nao-mente">github.com/VitorDBL/o-mercado-nao-mente</a> · Portfólio: <a href="https://vitordbl.github.io">vitordbl.github.io</a></div>
 </main></body></html>
 """
 
