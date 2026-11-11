@@ -21,7 +21,7 @@
     "inicio_corte": "2026-03-19",
     "ret_alta": {
       "Ibovespa": -0.077877,
-      "Itaú (ITUB4)": -0.102105,
+      "Itaú (ITUB4)": -0.10211,
       "Magazine Luiza (MGLU3)": -0.849981
     }
   },
@@ -77,12 +77,12 @@
     "inicio": "2019-01-02",
     "fim": "2026-11-11",
     "retorno": {
-      "Itaú (ITUB4)": 1.035151,
-      "Magazine Luiza (MGLU3)": -0.852243,
-      "Petrobras (PETR4)": 6.026417,
-      "Dólar (USD/BRL)": 0.43465,
-      "Vale (VALE3)": 1.402681,
-      "Ibovespa": 0.898454
+      "Itaú (ITUB4)": 1.026916,
+      "Magazine Luiza (MGLU3)": -0.85204,
+      "Petrobras (PETR4)": 6.035959,
+      "Dólar (USD/BRL)": 0.434212,
+      "Vale (VALE3)": 1.400447,
+      "Ibovespa": 0.896758
     },
     "inflacao": 0.503986,
     "perderam": [
