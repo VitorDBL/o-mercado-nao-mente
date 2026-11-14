@@ -75,16 +75,16 @@
   },
   "acumulado": {
     "inicio": "2019-01-02",
-    "fim": "2026-11-11",
+    "fim": "2026-11-13",
     "retorno": {
-      "Itaú (ITUB4)": 1.026916,
-      "Magazine Luiza (MGLU3)": -0.85204,
-      "Petrobras (PETR4)": 6.035959,
-      "Dólar (USD/BRL)": 0.434212,
-      "Vale (VALE3)": 1.400447,
-      "Ibovespa": 0.896758
+      "Itaú (ITUB4)": 1.047747,
+      "Magazine Luiza (MGLU3)": -0.84192,
+      "Petrobras (PETR4)": 6.204542,
+      "Dólar (USD/BRL)": 0.453826,
+      "Vale (VALE3)": 1.36433,
+      "Ibovespa": 0.89489
     },
-    "inflacao": 0.503986,
+    "inflacao": 0.506091,
     "perderam": [
       "Magazine Luiza (MGLU3)",
       "Dólar (USD/BRL)"
